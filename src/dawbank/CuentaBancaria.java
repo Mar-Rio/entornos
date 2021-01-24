@@ -1,23 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dawbank;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- *
- * @author 52659401g
- */
 public class CuentaBancaria {
 
-    private String iban,
+    public final String RED = "\033[31m";//IMPRIME EN ROJO LOS MENSAJES.
+    private final String iban,
             titular;
     private double saldo;
-    private Deque<Movimiento> historial = new ArrayDeque<>();
+    private final Deque<Movimiento> historial = new ArrayDeque<>();
 
     public CuentaBancaria(String iban, String titular) {
         this.iban = iban;
@@ -27,12 +18,11 @@ public class CuentaBancaria {
 
     public void setHistorial(Movimiento ultimo) {
         if (historial.size() < 100) {
-            historial.push(ultimo);
+            historial.push(ultimo);//INTRODUCE EN PRIMERA POSICION.
         } else {
-            historial.removeLast();
+            historial.removeLast();//ELIMINA EL ULTIMO.
             historial.push(ultimo);
         }
-
     }
 
     public String getIban() {
@@ -52,19 +42,40 @@ public class CuentaBancaria {
     }
 
     public boolean ingreso(double cantidad) {
-        boolean mayor0 = false;
+        boolean mayor0 = false;//INGRESA SI CANTIDAD MAYOR QUE CERO.
         if (cantidad > 0) {
             if (cantidad > 3000) {
-                System.out.println("AVISO: Notificar a hacienda.");
+                System.out.println(RED + "AVISO: Notificar a hacienda.");
             }
             saldo = saldo + cantidad;
             mayor0 = true;
             setHistorial(new Movimiento(cantidad, saldo));
-        } 
+        }
         return mayor0;
     }
 
     public boolean reintegro(double cantidad) {
-
+        boolean reintegroOK = false;//SALDO RESTANTE MAYOR QUE -50.
+        if (cantidad > 0) {
+            if (saldo - cantidad > -50) {
+                if (saldo - cantidad < 0) {
+                    System.out.println(RED + "AVISO: Saldo negativo.");
+                }
+                if (cantidad > 3000) {
+                    System.out.println(RED + "AVISO: Notificar a hacienda.");
+                }
+                saldo = saldo - cantidad;
+                reintegroOK = true;
+                setHistorial(new Movimiento(-cantidad, saldo));
+            }
+        }
+        return reintegroOK;
     }
+
+    @Override
+    public String toString() {
+        return "CuentaBancaria{" + "IBAN:" + iban + ", Titular:" + titular 
+                + ", Saldo:" + saldo + '}';
+    }
+
 }
